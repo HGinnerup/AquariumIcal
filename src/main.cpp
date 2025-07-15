@@ -54,7 +54,7 @@ bP6MvPJwNQzcmRk13NfIRmPVNnGuV/u3gm3c
 )string_literal"; // Root certificate, valid until 22/06/2036
 
 
-
+void ical_setup();
 void setup() {
     sleep(2); // Allow capacitors to charge before turning on antennas
     Serial.begin(115200);

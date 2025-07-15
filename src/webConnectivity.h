@@ -2,8 +2,9 @@
 
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include <NetworkClientSecure.h>
-
+//#include <NetworkClientSecure.h> // Esp renames `WiFiClientSecure` to `NetworkClientSecure`, but this is not carried over to PlatformIO
+#include <WiFiClientSecure.h>
+#define NetworkClientSecure WiFiClientSecure
 
 void wifiSetup(const char* ssid, const char* password, bool locking=true) {
     // First step is to configure WiFi STA and connect in order to get the current time and date.
