@@ -1,6 +1,7 @@
 #pragma once
 
 #include <FastLED.h>
+#include "common.h"
 
 #include "icalHandler.h"
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Arduino.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
 //#include <NetworkClientSecure.h> // Esp renames `WiFiClientSecure` to `NetworkClientSecure`, but this is not carried over to PlatformIO

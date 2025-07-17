@@ -5,4 +5,4 @@
 !.vscode/extensions.json
 
 # Protect credentials
-src/config.h
+src/common/config.h
