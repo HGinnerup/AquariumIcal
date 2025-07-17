@@ -6,12 +6,12 @@
 #include <WiFiClientSecure.h>
 #define NetworkClientSecure WiFiClientSecure
 
-void wifiSetup(const char* ssid, const char* password, bool locking=true) {
+void wifiSetup(const char* ssid, const char* password, bool locking = true) {
     // First step is to configure WiFi STA and connect in order to get the current time and date.
     Serial.printf("Connecting to %s ", ssid);
     WiFi.begin(ssid, password);
 
-    if(locking) {
+    if (locking) {
         while (WiFi.status() != WL_CONNECTED) {
             delay(500);
             Serial.print(".");
@@ -22,11 +22,11 @@ void wifiSetup(const char* ssid, const char* password, bool locking=true) {
 
 
 
-String httpsGet(const char* url, const char* CACertification, bool verbose=false) {
+String httpsGet(const char* url, const char* CACertification, bool verbose = false) {
 
     String output = String();
 
-    NetworkClientSecure *client = new NetworkClientSecure;
+    NetworkClientSecure* client = new NetworkClientSecure;
     if (!client) {
         Serial.println("Unable to create client");
         throw "Unable to create client";
@@ -34,7 +34,7 @@ String httpsGet(const char* url, const char* CACertification, bool verbose=false
 
     client->setCACert(CACertification);
     { // Add a scoping block for HTTPClient https to make sure it is destroyed before NetworkClientSecure *client is
-        
+
         HTTPClient https;
 
         if (verbose) Serial.print("[HTTPS] begin...\n");
@@ -67,7 +67,7 @@ String httpsGet(const char* url, const char* CACertification, bool verbose=false
         https.end();
 
     } // End extra scoping block
-    
+
     delete client;
 
     return output;

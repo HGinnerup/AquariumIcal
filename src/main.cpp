@@ -6,7 +6,11 @@
 #include "webConnectivity.h"
 #include "timeUtil.h"
 #include "icalHandler.h"
-#include "icalFastledEventHandler.h"
+
+#include "icalEventHandlers/relayHandler.h"
+#include "icalEventHandlers/relayHandlerMaxTimed.h"
+#include "icalEventHandlers/fastLedHandler.h"
+#include "icalEventHandlers/lambdaHandler.h"
 
 // Copy config_example.h to config.h and edit with your credentials
 #include "config.h"
@@ -57,14 +61,28 @@ void ical_setup() {
     icalEventIterator = ical_download_calendar();
     icalHandler = new IcalHandler(icalEventIterator, true);
 
+    // Top light
     icalHandler->registerEventHandler(new RelayHandler("Light - Bright", 32, true));
+
+    // CO2
     icalHandler->registerEventHandler(new RelayHandler("CO2", 33, true));
+
+    // Auto Feeder
     icalHandler->registerEventHandler(new RelayHandlerMaxTimed("Feed", 14, 5000, true));
 
+    // LED Lights
     CRGB leds[144];
     FastLED.addLeds<WS2815, 26, RGB>(leds, 144);
     FastLED.showColor(CRGB(0, 0, 0)); // Turn off in case they were already lit
-    icalHandler->registerEventHandler(new FastLedIcalHandler("WS2815 - Full white", CRGB(255, 200, 150)));
+    icalHandler->registerEventHandler(new FastLedHandler("WS2815 - Full white", CRGB(255, 200, 150)));
+
+    // System Reset
+    icalHandler->registerEventHandler(new LambdaHandler("SystemReset", [](uICAL::CalendarEntry_ptr evt) {
+        Serial.println("Resetting");
+
+        ESP.restart();
+        }));
+
 }
 
 
@@ -78,14 +96,14 @@ void loop() {
 
     Serial.print("Current time: ");
     Serial.println(current_time);
-    
+
     Serial.print("Time for next event: ");
     Serial.println(next_event_time);
 
     Serial.print("Waiting for ");
     Serial.print(wait_time);
     Serial.println(" seconds");
-    
+
     delay(wait_time * 1000);
 }
 

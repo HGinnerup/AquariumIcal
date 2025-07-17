@@ -3,19 +3,18 @@
 #include "time.h"
 
 
-
 void printLocalTime() {
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("No time available (yet)");
-    return;
-  }
-  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+    struct tm timeinfo;
+    if (!getLocalTime(&timeinfo)) {
+        Serial.println("No time available (yet)");
+        return;
+    }
+    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
 }
 
 
 // Callback function (gets called when time adjusts via NTP)
-void timeavailable(struct timeval *t) {
+void timeavailable(struct timeval* t) {
     Serial.println("Got time adjustment from NTP!");
     printLocalTime();
 }
@@ -35,5 +34,3 @@ time_t getUnixTime() {
 
     return now;
 }
-
-
