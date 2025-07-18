@@ -1,7 +1,7 @@
 .pio
 
 # Ignore vscode config aside from a few select files
-.vscode
+.vscode/**
 !.vscode/extensions.json
 
 # Protect credentials
