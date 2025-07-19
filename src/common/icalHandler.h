@@ -4,6 +4,7 @@
 #include <set>
 #include <uICAL.h>
 
+#include "logger.h"
 #include "icalEventHandlers/icalEventHandler.h"
 
 time_t uicalDateTimeToUnixtime(uICAL::DateTime icalTime) {
@@ -28,11 +29,17 @@ public:
         return a.unixtime - b.unixtime;
     }
 
-    void print() {
-        Serial.print(this->unixtime);
-        Serial.print(this->startingRatherThanEnding ? " - STARTING: " : " - ENDING:   ");
-        Serial.print(this->event->summary());
+    String toString() const {
+        char result[40];
+        sprintf(result, "%u - %s %s",
+            this->unixtime,
+            this->startingRatherThanEnding ? "STARTING:" : "ENDING: ",
+            event->summary().c_str()
+        );
+
+        return result;
     }
+
 };
 
 struct SortByUnixtime {
@@ -54,6 +61,8 @@ struct SortByUnixtime {
 
 
 class IcalHandler {
+protected:
+    Logger* logger;
 private:
     uICAL::CalendarIter_ptr icalEventIterator;
     std::set<EventLogItem, SortByUnixtime> eventLog;
@@ -61,9 +70,7 @@ private:
     void insertEventIntoLog(uICAL::CalendarEntry_ptr event) {
         this->eventLog.insert(EventLogItem(event->start(), event, true));
         this->eventLog.insert(EventLogItem(event->end(), event, false));
-
-        if (this->verbose)
-            printEventQueue();
+        printEventQueue(LogLevel::DEBUG);
     }
 
 
@@ -82,59 +89,43 @@ private:
 
         String eventName = event->summary();
         IcalEventHandler* eventHandler;
+        
         try {
             eventHandler = this->eventHandlers.at(eventName);
         }
         catch (const std::out_of_range& ex) {
-            if (this->verbose) {
-                Serial.print("Unhandled event: \"");
-                Serial.print(eventName);
-                Serial.println("\"");
-            }
+            this->logger->warn("Unhandled event: \"" + eventName + "\"");
             return;
         }
 
         if (startingRatherThanEnding) {
-            if (this->verbose) {
-                Serial.print("Starting event ");
-                Serial.println(eventName);
-            }
+            this->logger->info("Starting event: \"" + eventName + "\"");
             eventHandler->onEventStart(event);
         }
         else {
-            if (this->verbose) {
-                Serial.print("Finishing event ");
-                Serial.println(eventName);
-            }
+            this->logger->info("Finishing event: \"" + eventName + "\"");
             eventHandler->onEventEnd(event);
         }
     }
 
 
 public:
-    bool verbose;
-    IcalHandler(uICAL::CalendarIter_ptr icalEventIterator, bool verbose = false) : icalEventIterator(icalEventIterator), verbose(verbose) {
+    IcalHandler(uICAL::CalendarIter_ptr icalEventIterator, Logger* logger = &Logger::getInstance()) : icalEventIterator(icalEventIterator), logger(logger) {
         this->consumeNextEventFromIcalStream();
     }
 
-    void printEventQueue() {
-        Serial.println("Event Queue:");
+    void printEventQueue(LogLevel lvl = LogLevel::INFO) {
+        this->logger->log(lvl, "Event Queue:");
 
         for (EventLogItem item : this->eventLog) {
-            Serial.print("\t");
-            item.print();
-            Serial.println();
+            this->logger->log(lvl, "\t" + item.toString());
         }
-        Serial.println();
+        this->logger->log(lvl, "");
     }
 
 
     void registerEventHandler(IcalEventHandler* handler) {
-        if (this->verbose) {
-            Serial.print("Registering event handler: \"");
-            Serial.print(handler->getEventName());
-            Serial.println("\"");
-        }
+        this->logger->info("Registering event handler: \"" + handler->getEventName() + "\"");
 
         this->eventHandlers[handler->getEventName()] = handler;
     }
@@ -161,7 +152,7 @@ public:
             this->processLogItem(item);
             this->eventLog.erase(item);
         }
-        if (this->verbose)
-            printEventQueue();
+
+        printEventQueue();
     }
 };

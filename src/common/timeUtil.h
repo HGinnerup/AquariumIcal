@@ -1,22 +1,24 @@
 #pragma once
 
 #include "time.h"
+#include "logger.h"
 
 
-void printLocalTime() {
+String localTimeString() {
     struct tm timeinfo;
     if (!getLocalTime(&timeinfo)) {
-        Serial.println("No time available (yet)");
-        return;
+        return "No time available (yet)";
     }
-    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+    char buffer[64];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &timeinfo);
+    return String(buffer);
 }
 
 
 // Callback function (gets called when time adjusts via NTP)
 void timeavailable(struct timeval* t) {
-    Serial.println("Got time adjustment from NTP!");
-    printLocalTime();
+    Logger::getInstance().info("Got time adjustment from NTP!");
+    Logger::getInstance().info(localTimeString());
 }
 
 void timeSetup(const char* timezone, const char* ntpServer1, const char* ntpServer2) {

@@ -3,6 +3,8 @@
 #include <uICAL.h>
 #include <FastLED.h>
 
+#include "common.h"
+#include "logger.h"
 #include "webConnectivity.h"
 #include "timeUtil.h"
 #include "icalHandler.h"
@@ -16,6 +18,7 @@
 #include "config.h"
 
 
+Logger logger = Logger::getInstance();
 void ical_setup();
 void setup() {
     sleep(2); // Allow capacitors to charge before turning on antennas
@@ -39,8 +42,7 @@ uICAL::CalendarIter_ptr ical_download_calendar() {
         cal = uICAL::Calendar::load(istm);
     }
     catch (uICAL::Error ex) {
-        Serial.print(ex.message.c_str());
-        Serial.println(": ! Failed loading calendar");
+        logger.error(ex.message + ": ! Failed loading calendar");
     }
 
     time_t now = getUnixTime();
@@ -48,8 +50,7 @@ uICAL::CalendarIter_ptr ical_download_calendar() {
     uICAL::DateTime calBegin(now);
     //uICAL::DateTime calEnd(now + 86400);
     uICAL::DateTime calEnd(std::numeric_limits<time_t>::max());
-    Serial.print("Endtime: ");
-    Serial.println(calEnd.as_str().c_str());
+    logger.info("Endtime: " + calEnd.as_str());
 
     return uICAL::new_ptr<uICAL::CalendarIter>(cal, calBegin, calEnd);
 }
@@ -59,7 +60,7 @@ uICAL::CalendarIter_ptr icalEventIterator;
 IcalHandler* icalHandler;
 void ical_setup() {
     icalEventIterator = ical_download_calendar();
-    icalHandler = new IcalHandler(icalEventIterator, true);
+    icalHandler = new IcalHandler(icalEventIterator);
 
     // Top light
     icalHandler->registerEventHandler(new RelayHandler("Light - Bright", 32, true));
