@@ -8,16 +8,11 @@
 
 class FastLedHandler : public IcalEventHandler {
 private:
-    String name;
     CRGB color;
 
 public:
-    FastLedHandler(String eventName, CRGB color) : name(eventName), color(color) {
+    FastLedHandler(String eventName, CRGB color) : IcalEventHandler(eventName), color(color) {
         //FastLED.showColor(CRGB(255, 200, 150));
-    }
-
-    String getEventName() override {
-        return name;
     }
 
     void onEventStart(uICAL::CalendarEntry_ptr evt) override {
