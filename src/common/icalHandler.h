@@ -55,6 +55,11 @@ struct SortByUnixtime {
             return lhs.startingRatherThanEnding && !rhs.startingRatherThanEnding;
         }
 
+        // A new entry will disappear if this ranking considers it equal to a previous, order by name if necessary.
+        if(lhs.startingRatherThanEnding == rhs.startingRatherThanEnding) {
+            return strcmp(lhs.event->summary().c_str(), rhs.event->summary().c_str());
+        }
+
         // Finalize tasks before starting new ones
         return !lhs.startingRatherThanEnding && rhs.startingRatherThanEnding;
     }
@@ -71,12 +76,13 @@ private:
     void insertEventIntoLog(uICAL::CalendarEntry_ptr event) {
         this->eventLog.insert(EventLogItem(event->start(), event, true));
         this->eventLog.insert(EventLogItem(event->end(), event, false));
-        printEventQueue(LogLevel::DEBUG);
     }
 
 
     void consumeNextEventFromIcalStream() {
         uICAL::CalendarEntry_ptr entry = this->icalIterator->consume();
+
+        Logger::getInstance().debug("Adding item: ", entry->summary());
 
         this->insertEventIntoLog(entry);
     }
@@ -142,11 +148,11 @@ public:
 
 
     void processEventsUntil(time_t time) {
-        printEventQueue();
-        // for (EventLogItem item : this->eventLog) {
         while (this->hasNextEvent()) {
             EventLogItem item = *(this->eventLog.begin());
             if (item.unixtime > time) break;
+
+            Logger::getInstance().debug("Processing item: \n\t", item.toString());
 
             if (item.startingRatherThanEnding) { // Always keep at least 1 upcoming event in the log
                 this->consumeNextEventFromIcalStream();

@@ -180,8 +180,7 @@ TEST(ICalHandler, Intersecting_end_and_start_multiple_recurring) {
     const time_t day_seconds = 60*60*24;
 
     
-    Logger::getInstance().setLogLevel(LogLevel::INFO);
-    for(int days=0; days<1; days++) {
+    for(int days=0; days<5; days++) {
         icalHandler->processEventsUntil(days * day_seconds + 6);
         EXPECT_EQ(days    , ev1Handler->timesStartCalled);
         EXPECT_EQ(days    , ev1Handler->timesEndCalled);
