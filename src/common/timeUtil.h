@@ -17,8 +17,7 @@ String localTimeString() {
 
 // Callback function (gets called when time adjusts via NTP)
 void timeavailable(struct timeval* t) {
-    Logger::getInstance().info("Got time adjustment from NTP!");
-    Logger::getInstance().info(localTimeString());
+    Logger::getInstance().info("Got time adjustment from NTP!", localTimeString());
 }
 
 void timeSetup(const char* timezone, const char* ntpServer1, const char* ntpServer2) {

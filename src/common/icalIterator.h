@@ -28,7 +28,7 @@ public:
             this->calendar = uICAL::Calendar::load(istm);
         }
         catch (uICAL::Error ex) {
-            Logger::getInstance().error(ex.message + ": ! Failed loading calendar");
+            Logger::getInstance().error(ex.message, ": ! Failed loading calendar");
         }
 
         uICAL::DateTime calBegin(startTime);

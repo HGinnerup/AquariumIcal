@@ -25,23 +25,46 @@ public:
         logLevel_ = level;
     }
 
-    void log(LogLevel level, const String& message) {
-        if (level >= logLevel_) {
-#if defined(ARDUINO)
-            Serial.print("[");
-            Serial.print(logLevelToString(level).c_str());
-            Serial.print("] ");
-            Serial.println(message.c_str());
-#else
-            std::cout << "[" << logLevelToString(level) << "] " << message << std::endl;
-#endif
-        }
+protected:
+    void write(const std::string& message) {
+        write(message.c_str());
     }
 
-    void debug(const String& message) { log(LogLevel::DEBUG, message); }
-    void info(const String& message)  { log(LogLevel::INFO, message); }
-    void warn(const String& message)  { log(LogLevel::WARN, message); }
-    void error(const String& message) { log(LogLevel::ERROR, message); }
+    template<typename T>
+    void write(T message) {
+        #ifdef ARDUINO
+            Serial.print(message); // works for int, float, const char*, etc.
+        #else
+            std::cout << message;
+        #endif
+    }
+    
+    void log_helper(LogLevel level) {
+        write("\n");
+    }
+
+    template<typename T, typename... Args>
+    void log_helper(LogLevel level, const T& first, const Args&... rest) {
+        write(first);
+        log_helper(level, rest...);
+    }
+public:
+    template<typename... Args>
+    void log(LogLevel level, const Args&... messageItems) {
+        log_helper(level, "[", logLevelToString(level), "] ", messageItems...);
+    }
+
+    template<typename... Args>
+    void debug(const Args&... messageItems)  { log(LogLevel::DEBUG, messageItems...); }
+
+    template<typename... Args>
+    void info(const Args&... messageItems)  { log(LogLevel::INFO, messageItems...); }
+
+    template<typename... Args>
+    void warn(const Args&... messageItems)  { log(LogLevel::WARN, messageItems...); }
+
+    template<typename... Args>
+    void error(const Args&... messageItems)  { log(LogLevel::ERROR, messageItems...); }
 
 private:
     Logger() : logLevel_(LogLevel::INFO) {}
