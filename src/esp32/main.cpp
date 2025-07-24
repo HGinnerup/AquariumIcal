@@ -1,5 +1,7 @@
+#include <Arduino.h>
 
 #include "esp_sntp.h"
+#include <memory>
 #include <uICAL.h>
 #include <FastLED.h>
 
@@ -32,35 +34,21 @@ void setup() {
 }
 
 
-uICAL::CalendarIter_ptr ical_download_calendar() {
-
+IcalIterator_ptr ical_download_calendar() {
     String ical_str = httpsGet(ICAL_URL, ROOT_CA_CERTIFICATE);
 
-    uICAL::Calendar_ptr cal = nullptr;
-    try {
-        uICAL::istream_String istm(ical_str);
-        cal = uICAL::Calendar::load(istm);
-    }
-    catch (uICAL::Error ex) {
-        logger.error(ex.message + ": ! Failed loading calendar");
-    }
-
     time_t now = getUnixTime();
+    IcalIterator_ptr icalIterator = new_shared_ptr<IcalIterator>(ical_str, now);
 
-    uICAL::DateTime calBegin(now);
-    //uICAL::DateTime calEnd(now + 86400);
-    uICAL::DateTime calEnd(std::numeric_limits<time_t>::max());
-    logger.info("Endtime: " + calEnd.as_str());
-
-    return uICAL::new_ptr<uICAL::CalendarIter>(cal, calBegin, calEnd);
+    return icalIterator;
 }
 
 
-uICAL::CalendarIter_ptr icalEventIterator;
+IcalIterator_ptr icalIterator;
 IcalHandler* icalHandler;
 void ical_setup() {
-    icalEventIterator = ical_download_calendar();
-    icalHandler = new IcalHandler(icalEventIterator);
+    icalIterator = ical_download_calendar();
+    icalHandler = new IcalHandler(icalIterator);
 
     // Top light
     icalHandler->registerEventHandler(new RelayHandler("Light - Bright", 32, true));
@@ -95,15 +83,9 @@ void loop() {
     time_t next_event_time = icalHandler->getTimeOfNextEvent();
     time_t wait_time = next_event_time - current_time;
 
-    Serial.print("Current time: ");
-    Serial.println(current_time);
-
-    Serial.print("Time for next event: ");
-    Serial.println(next_event_time);
-
-    Serial.print("Waiting for ");
-    Serial.print(wait_time);
-    Serial.println(" seconds");
+    Logger::getInstance().info("Current time: " + std::to_string(current_time));
+    Logger::getInstance().info("Time for next event: " + std::to_string(next_event_time));
+    Logger::getInstance().info("Waiting for " + std::to_string(wait_time) + " seconds");
 
     delay(wait_time * 1000);
 }

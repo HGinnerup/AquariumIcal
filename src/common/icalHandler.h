@@ -6,6 +6,7 @@
 
 #include "logger.h"
 #include "icalEventHandlers/icalEventHandler.h"
+#include "icalIterator.h"
 
 time_t uicalDateTimeToUnixtime(uICAL::DateTime icalTime) {
     return (time_t)(icalTime - uICAL::DateTime(0)).totalSeconds();
@@ -64,7 +65,7 @@ class IcalHandler {
 protected:
     Logger* logger;
 private:
-    uICAL::CalendarIter_ptr icalEventIterator;
+    IcalIterator_ptr icalIterator;
     std::set<EventLogItem, SortByUnixtime> eventLog;
 
     void insertEventIntoLog(uICAL::CalendarEntry_ptr event) {
@@ -75,8 +76,7 @@ private:
 
 
     void consumeNextEventFromIcalStream() {
-        this->icalEventIterator->next();
-        uICAL::CalendarEntry_ptr entry = icalEventIterator->current();
+        uICAL::CalendarEntry_ptr entry = this->icalIterator->consume();
 
         this->insertEventIntoLog(entry);
     }
@@ -110,7 +110,7 @@ private:
 
 
 public:
-    IcalHandler(uICAL::CalendarIter_ptr icalEventIterator, Logger* logger = &Logger::getInstance()) : icalEventIterator(icalEventIterator), logger(logger) {
+    IcalHandler(IcalIterator_ptr icalIterator, Logger* logger = &Logger::getInstance()) : icalIterator(icalIterator), logger(logger) {
         this->consumeNextEventFromIcalStream();
     }
 
@@ -142,7 +142,10 @@ public:
 
 
     void processEventsUntil(time_t time) {
-        for (EventLogItem item : this->eventLog) {
+        printEventQueue();
+        // for (EventLogItem item : this->eventLog) {
+        while (this->hasNextEvent()) {
+            EventLogItem item = *(this->eventLog.begin());
             if (item.unixtime > time) break;
 
             if (item.startingRatherThanEnding) { // Always keep at least 1 upcoming event in the log
@@ -156,3 +159,4 @@ public:
         printEventQueue();
     }
 };
+DEF_PTR_TYPE(IcalHandler)
