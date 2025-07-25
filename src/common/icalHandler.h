@@ -31,14 +31,13 @@ public:
     }
 
     String toString() const {
-        char result[40];
-        sprintf(result, "%u - %s %s",
-            this->unixtime,
-            this->startingRatherThanEnding ? "STARTING:" : "ENDING: ",
-            event->summary().c_str()
-        );
-
-        return result;
+        String str;
+        
+        str += this->unixtime;
+        str += this->startingRatherThanEnding ? " - STARTING: " : " - ENDING:  ";
+        str += event->summary();
+        
+        return str;
     }
 
 };
