@@ -20,8 +20,10 @@ String localTimeString() {
 
 
 // Callback function (gets called when time adjusts via NTP)
+bool TIME_HAS_BEEN_SET = false;
 void timeavailable(struct timeval* t) {
-    Logger::getInstance().info("Got time adjustment from NTP!", localTimeString());
+    Logger::getInstance().info("Got time adjustment from NTP! ", localTimeString());
+    TIME_HAS_BEEN_SET = true;
 }
 #endif
 
@@ -34,6 +36,10 @@ void timeSetup(const char* timezone, const char* ntpServer1, const char* ntpServ
 
 time_t getUnixTime() {
 #ifdef ARDUINO
+
+    if(!TIME_HAS_BEEN_SET)
+        return 0;
+
     time_t now;
     struct tm timeinfo;
     if (!getLocalTime(&timeinfo)) {

@@ -38,16 +38,18 @@ IcalIterator_ptr ical_download_calendar() {
     String ical_str = httpsGet(ICAL_URL, ROOT_CA_CERTIFICATE);
 
     time_t now = getUnixTime();
-    IcalIterator_ptr icalIterator = new_shared_ptr<IcalIterator>(ical_str, now);
-
-    return icalIterator;
+    while(now == 0) {
+        Logger::getInstance().info("Waiting for time adjustment");
+        delay(1000);
+        now = getUnixTime();
+    }
+    return new_shared_ptr<IcalIterator>(ical_str, now);
 }
 
 
-IcalIterator_ptr icalIterator;
 IcalHandler* icalHandler;
 void ical_setup() {
-    icalIterator = ical_download_calendar();
+    IcalIterator_ptr icalIterator = ical_download_calendar();
     icalHandler = new IcalHandler(icalIterator);
 
     // Top light
