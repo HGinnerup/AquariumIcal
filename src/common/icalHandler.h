@@ -61,7 +61,7 @@ struct SortByUnixtime {
         }
 
         // Finalize tasks before starting new ones
-        return !lhs.startingRatherThanEnding && rhs.startingRatherThanEnding;
+        return lhs.startingRatherThanEnding < rhs.startingRatherThanEnding;
     }
 };
 
@@ -89,7 +89,7 @@ private:
 
 
     std::map<String, IcalEventHandler*> eventHandlers;
-    void processLogItem(EventLogItem& logItem) {
+    void processLogItem(const EventLogItem& logItem) {
         uICAL::CalendarEntry_ptr event = logItem.event;
         bool startingRatherThanEnding = logItem.startingRatherThanEnding;
 

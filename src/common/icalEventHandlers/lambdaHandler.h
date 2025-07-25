@@ -13,7 +13,7 @@ protected:
 
 
 public:
-    LambdaHandler(String eventName, void (*onEventStart)(uICAL::CalendarEntry_ptr evt) = NULL, void (*onEventEnd)(uICAL::CalendarEntry_ptr evt) = NULL) : IcalEventHandler(eventName), _onEventStart(onEventStart), _onEventEnd(onEventEnd) {
+    LambdaHandler(const String& eventName, void (*onEventStart)(uICAL::CalendarEntry_ptr evt) = NULL, void (*onEventEnd)(uICAL::CalendarEntry_ptr evt) = NULL) : IcalEventHandler(eventName), _onEventStart(onEventStart), _onEventEnd(onEventEnd) {
 
     }
 

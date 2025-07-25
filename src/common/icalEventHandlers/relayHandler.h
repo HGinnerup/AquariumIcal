@@ -12,7 +12,7 @@ protected:
     bool inverted;
 
 public:
-    RelayHandler(String eventName, int pinId, bool invertedState = false) : IcalEventHandler(eventName), pin(pinId), inverted(invertedState) {
+    RelayHandler(const String& eventName, int pinId, bool invertedState = false) : IcalEventHandler(eventName), pin(pinId), inverted(invertedState) {
         pinMode(pinId, OUTPUT);
         digitalWrite(this->pin, inverted); // Default state to off
     }

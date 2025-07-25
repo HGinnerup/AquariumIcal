@@ -11,7 +11,7 @@ private:
     CRGB color;
 
 public:
-    FastLedHandler(String eventName, CRGB color) : IcalEventHandler(eventName), color(color) {
+    FastLedHandler(const String& eventName, CRGB color) : IcalEventHandler(eventName), color(color) {
         //FastLED.showColor(CRGB(255, 200, 150));
     }
 

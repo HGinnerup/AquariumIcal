@@ -7,7 +7,7 @@
 class IcalEventHandler {
 protected:
     String name;
-    IcalEventHandler(String eventName) : name(eventName) {}
+    IcalEventHandler(const String& eventName) : name(eventName) {}
 
 public:
     virtual String getEventName() {
