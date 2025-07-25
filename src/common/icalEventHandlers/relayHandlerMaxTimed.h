@@ -11,7 +11,7 @@ protected:
     int millisecondsOn;
 
 public:
-    RelayHandlerMaxTimed(String eventName, int pinId, int millisecondsOn, bool invertedState = false) : RelayHandler(eventName, pinId, invertedState), millisecondsOn(millisecondsOn) {
+    RelayHandlerMaxTimed(const String& eventName, int pinId, int millisecondsOn, bool invertedState = false) : RelayHandler(eventName, pinId, invertedState), millisecondsOn(millisecondsOn) {
 
     }
 

@@ -1,8 +1,12 @@
+#include <Arduino.h>
 
 #include "esp_sntp.h"
+#include <memory>
 #include <uICAL.h>
 #include <FastLED.h>
 
+#include "common.h"
+#include "logger.h"
 #include "webConnectivity.h"
 #include "timeUtil.h"
 #include "icalHandler.h"
@@ -16,6 +20,7 @@
 #include "config.h"
 
 
+Logger logger = Logger::getInstance();
 void ical_setup();
 void setup() {
     sleep(2); // Allow capacitors to charge before turning on antennas
@@ -29,37 +34,23 @@ void setup() {
 }
 
 
-uICAL::CalendarIter_ptr ical_download_calendar() {
-
+IcalIterator_ptr ical_download_calendar() {
     String ical_str = httpsGet(ICAL_URL, ROOT_CA_CERTIFICATE);
 
-    uICAL::Calendar_ptr cal = nullptr;
-    try {
-        uICAL::istream_String istm(ical_str);
-        cal = uICAL::Calendar::load(istm);
-    }
-    catch (uICAL::Error ex) {
-        Serial.print(ex.message.c_str());
-        Serial.println(": ! Failed loading calendar");
-    }
-
     time_t now = getUnixTime();
-
-    uICAL::DateTime calBegin(now);
-    //uICAL::DateTime calEnd(now + 86400);
-    uICAL::DateTime calEnd(std::numeric_limits<time_t>::max());
-    Serial.print("Endtime: ");
-    Serial.println(calEnd.as_str().c_str());
-
-    return uICAL::new_ptr<uICAL::CalendarIter>(cal, calBegin, calEnd);
+    while(now == 0) {
+        Logger::getInstance().info("Waiting for time adjustment");
+        delay(1000);
+        now = getUnixTime();
+    }
+    return new_shared_ptr<IcalIterator>(ical_str, now);
 }
 
 
-uICAL::CalendarIter_ptr icalEventIterator;
 IcalHandler* icalHandler;
 void ical_setup() {
-    icalEventIterator = ical_download_calendar();
-    icalHandler = new IcalHandler(icalEventIterator, true);
+    IcalIterator_ptr icalIterator = ical_download_calendar();
+    icalHandler = new IcalHandler(icalIterator);
 
     // Top light
     icalHandler->registerEventHandler(new RelayHandler("Light - Bright", 32, true));
@@ -94,15 +85,9 @@ void loop() {
     time_t next_event_time = icalHandler->getTimeOfNextEvent();
     time_t wait_time = next_event_time - current_time;
 
-    Serial.print("Current time: ");
-    Serial.println(current_time);
-
-    Serial.print("Time for next event: ");
-    Serial.println(next_event_time);
-
-    Serial.print("Waiting for ");
-    Serial.print(wait_time);
-    Serial.println(" seconds");
+    Logger::getInstance().info("Current time: ", current_time);
+    Logger::getInstance().info("Time for next event: ", next_event_time);
+    Logger::getInstance().info("Waiting for ", wait_time, " seconds");
 
     delay(wait_time * 1000);
 }

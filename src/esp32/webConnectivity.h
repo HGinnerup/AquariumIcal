@@ -23,8 +23,7 @@ void wifiSetup(const char* ssid, const char* password, bool locking = true) {
 
 
 
-String httpsGet(const char* url, const char* CACertification, bool verbose = false) {
-
+String httpsGet(const String& url, const char* CACertification, bool verbose = false) {
     String output = String();
 
     NetworkClientSecure* client = new NetworkClientSecure;
