@@ -19,6 +19,8 @@
 // Copy config_example.h to config.h and edit with your credentials
 #include "config.h"
 
+#include "ota.h"
+
 
 Logger logger = Logger::getInstance();
 void ical_setup();
@@ -31,6 +33,8 @@ void setup() {
     timeSetup(TIMEZONE, NTP_SERVER_1, NTP_SERVER_2);
 
     ical_setup();
+
+    otaSetup(OTA_PORT, ESP_NETWORK_HOSTNAME, OTA_PASSWORD);
 }
 
 
@@ -89,7 +93,11 @@ void loop() {
     Logger::getInstance().info("Time for next event: ", next_event_time);
     Logger::getInstance().info("Waiting for ", wait_time, " seconds");
 
-    delay(wait_time * 1000);
+    while(getUnixTime() < next_event_time - 2000) {
+        otaLoop();
+        delay(1000);
+    }
+    delay(next_event_time - getUnixTime());
 }
 
 

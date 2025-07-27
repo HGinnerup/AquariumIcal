@@ -5,6 +5,10 @@
 #define ICAL_URL "https://your_ical_url.ics"
 
 
+#define ESP_NETWORK_HOSTNAME "aquariumical" // Should be all lowercase, or OTA seems to fail
+#define OTA_PORT 3232 // 3232 is default
+#define OTA_PASSWORD "VsrBhQf4TgTM2S0yDpM7xSma8ytSmzJSq0SPly4c"
+
 #define TZ_Europe_Copenhagen	"CET-1CEST,M3.5.0,M10.5.0/3"
 #define TIMEZONE TZ_Europe_Copenhagen   // Find timezones at https://github.com/esp8266/Arduino/blob/master/cores/esp8266/TZ.h
 
