@@ -21,24 +21,61 @@ public:
         return instance;
     }
 
+#pragma region Log Level
+protected:
+    LogLevel logLevel;
+    std::string logLevelToString(LogLevel level) {
+        switch (level) {
+        case LogLevel::DEBUG: return "DEBUG";
+        case LogLevel::INFO:  return "INFO";
+        case LogLevel::WARN:  return "WARN";
+        case LogLevel::ERROR: return "ERROR";
+        default:              return "UNKNOWN";
+        }
+    }
+public:
     void setLogLevel(LogLevel level) {
-        logLevel_ = level;
+        logLevel = level;
+    }
+#pragma endregion
+
+#pragma region Logger calls
+public:
+    template<typename... Args>
+    void log(LogLevel level, const Args&... messageItems) {
+        log_helper(level, "[", logLevelToString(level), "] ", messageItems...);
     }
 
+    template<typename... Args>
+    void debug(const Args&... messageItems) { log(LogLevel::DEBUG, messageItems...); }
+
+    template<typename... Args>
+    void info(const Args&... messageItems) { log(LogLevel::INFO, messageItems...); }
+
+    template<typename... Args>
+    void warn(const Args&... messageItems) { log(LogLevel::WARN, messageItems...); }
+
+    template<typename... Args>
+    void error(const Args&... messageItems) { log(LogLevel::ERROR, messageItems...); }
+
+#pragma endregion
+
+#pragma region log_helper
 protected:
+    // Use log levels
     void write(const std::string& message) {
         write(message.c_str());
     }
 
     template<typename T>
     void write(T message) {
-        #ifdef ARDUINO
-            Serial.print(message); // works for int, float, const char*, etc.
-        #else
-            std::cout << message;
-        #endif
+#ifdef ARDUINO
+        Serial.print(message); // works for int, float, const char*, etc.
+#else
+        std::cout << message;
+#endif
     }
-    
+
     void log_helper(LogLevel level) {
         write("\n");
     }
@@ -48,36 +85,8 @@ protected:
         write(first);
         log_helper(level, rest...);
     }
-public:
-    template<typename... Args>
-    void log(LogLevel level, const Args&... messageItems) {
-        log_helper(level, "[", logLevelToString(level), "] ", messageItems...);
-    }
-
-    template<typename... Args>
-    void debug(const Args&... messageItems)  { log(LogLevel::DEBUG, messageItems...); }
-
-    template<typename... Args>
-    void info(const Args&... messageItems)  { log(LogLevel::INFO, messageItems...); }
-
-    template<typename... Args>
-    void warn(const Args&... messageItems)  { log(LogLevel::WARN, messageItems...); }
-
-    template<typename... Args>
-    void error(const Args&... messageItems)  { log(LogLevel::ERROR, messageItems...); }
+#pragma endregion
 
 private:
-    Logger() : logLevel_(LogLevel::INFO) {}
-
-    std::string logLevelToString(LogLevel level) {
-        switch (level) {
-            case LogLevel::DEBUG: return "DEBUG";
-            case LogLevel::INFO:  return "INFO";
-            case LogLevel::WARN:  return "WARN";
-            case LogLevel::ERROR: return "ERROR";
-            default:              return "UNKNOWN";
-        }
-    }
-
-    LogLevel logLevel_;
+    Logger() : logLevel(LogLevel::INFO) {}
 };
