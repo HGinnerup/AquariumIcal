@@ -68,7 +68,6 @@ void ical_setup() {
     // LED Lights
     CRGB leds[144];
     FastLED.addLeds<WS2815, 26, RGB>(leds, 144);
-    FastLED.showColor(CRGB(0, 0, 0)); // Turn off in case they were already lit
     icalHandler->registerEventHandler(new FastLedHandler("WS2815 - Full white", CRGB(255, 200, 150)));
 
     // System Reset
