@@ -5,6 +5,10 @@
 #include <iostream>
 #endif
 
+#ifdef ARDUINO
+#include <Print.h>
+#endif
+
 #include "common.h"
 
 enum class LogLevel {
@@ -39,6 +43,39 @@ public:
     }
 #pragma endregion
 
+#pragma region outputPrinter
+#ifdef ARDUINO
+protected:
+    Print* printer;
+public:
+    void setWriteStrategy(Print* printer) {
+        this->printer = printer;
+    }
+#endif
+protected:
+    void write(const char* message) {
+#ifdef ARDUINO
+        printer->print(message); // works for int, float, const char*, etc.
+#else
+        std::cout << message;
+#endif
+    }
+
+    void write(const std::string& message) {
+        write(message.c_str());
+    }
+
+    template<typename T>
+    void write(T message) {
+#ifdef ARDUINO
+        printer->print(message); // works for int, float, const char*, etc.
+#else
+        std::cout << message;
+#endif
+    }
+
+#pragma endregion
+
 #pragma region Logger calls
 public:
     template<typename... Args>
@@ -62,22 +99,13 @@ public:
 
 #pragma region log_helper
 protected:
-    // Use log levels
-    void write(const std::string& message) {
-        write(message.c_str());
-    }
-
-    template<typename T>
-    void write(T message) {
-#ifdef ARDUINO
-        Serial.print(message); // works for int, float, const char*, etc.
-#else
-        std::cout << message;
-#endif
-    }
-
     void log_helper(LogLevel level) {
-        write("\n");
+#ifdef ARDUINO
+        printer->println();
+#else
+        std::cout << "\r\n";
+#endif
+
     }
 
     template<typename T, typename... Args>

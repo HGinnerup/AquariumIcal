@@ -20,15 +20,35 @@
 #include "config.h"
 
 #include "ota.h"
+#include "printers/telnetServer.h"
 
 
-Logger logger = Logger::getInstance();
 void ical_setup();
 void setup() {
     sleep(2); // Allow capacitors to charge before turning on antennas
     Serial.begin(115200);
+    Logger::getInstance().setWriteStrategy(&Serial);
 
     wifiSetup(WIFI_SSID, WIFI_PASSWORD);
+
+#if TELNET_PORT != 0
+    TelnetServer<TELNET_PORT>::getInstance()->begin();
+    Logger::getInstance().setWriteStrategy(TelnetServer<23>::getInstance());
+
+#if TELNET_WAIT_FOR_CLIENT_SECONDS > 0
+    pinMode(LED_BUILTIN, OUTPUT);
+    for (int i = 0; i < TELNET_WAIT_FOR_CLIENT_SECONDS; i++) {
+        digitalWrite(LED_BUILTIN, i % 2);
+        delay(1000);
+        if (TelnetServer<TELNET_PORT>::getInstance()->getClientCount() > 0) {
+            Logger::getInstance().info("Telnet client connected");
+            break;
+        }
+    }
+    digitalWrite(LED_BUILTIN, LOW);
+
+#endif
+#endif
 
     timeSetup(TIMEZONE, NTP_SERVER_1, NTP_SERVER_2);
 
@@ -92,9 +112,17 @@ void loop() {
     Logger::getInstance().info("Time for next event: ", next_event_time);
     Logger::getInstance().info("Waiting for ", wait_time, " seconds");
 
-    while(getUnixTime() < next_event_time - 2000) {
+    while (getUnixTime() < next_event_time - 2000) {
         otaLoop();
         delay(1000);
+
+        current_time = getUnixTime();
+        wait_time = next_event_time - current_time;
+
+        icalHandler->printEventQueue();
+        Logger::getInstance().info("\tCurrent time: ", current_time,
+            "\r\n\tTime for next event: ", next_event_time,
+            "\r\n\tWaiting for ", wait_time, " seconds\r\n");
     }
     delay(next_event_time - getUnixTime());
 }

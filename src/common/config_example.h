@@ -9,6 +9,9 @@
 #define OTA_PORT 3232 // 3232 is default
 #define OTA_PASSWORD "VsrBhQf4TgTM2S0yDpM7xSma8ytSmzJSq0SPly4c"
 
+#define TELNET_PORT 23 // 0 to disable telnet // This must also be updated in platformio.ini
+#define TELNET_WAIT_FOR_CLIENT_SECONDS 20 // 0 for disabled
+
 #define TZ_Europe_Copenhagen	"CET-1CEST,M3.5.0,M10.5.0/3"
 #define TIMEZONE TZ_Europe_Copenhagen   // Find timezones at https://github.com/esp8266/Arduino/blob/master/cores/esp8266/TZ.h
 
