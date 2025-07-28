@@ -9,6 +9,7 @@ using String = std::string;
 #include <thread>
 #include <chrono>
 #endif
+#include <memory.h>
 
 
 #define DEF_PTR_TYPE(T) \

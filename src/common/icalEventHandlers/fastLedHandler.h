@@ -7,20 +7,32 @@
 
 
 class FastLedHandler : public IcalEventHandler {
-private:
-    CRGB color;
+protected:
+    CRGB onColor;
+    CRGB offColor;
 
+    void write(CRGB color, int howManyTimesToCall=5, int delayMs=50) {
+        for(int i=0; i<howManyTimesToCall; i++) {
+            FastLED.showColor(color);
+
+            if(i < howManyTimesToCall - 1) { // Don't delay after the last attempt
+                delay(delayMs);
+            }
+        }
+    }
+
+        
 public:
-    FastLedHandler(const String& eventName, CRGB color) : IcalEventHandler(eventName), color(color) {
-        //FastLED.showColor(CRGB(255, 200, 150));
+    FastLedHandler(const String& eventName, CRGB onColor, CRGB offColor = CRGB(0, 0, 0)) : IcalEventHandler(eventName), onColor(onColor), offColor(offColor) {
+        this->write(offColor, 1); // Turn off in case they were already lit
     }
 
     void onEventStart(uICAL::CalendarEntry_ptr evt) override {
-        FastLED.showColor(this->color);
+        this->write(this->onColor);
     }
 
     void onEventEnd(uICAL::CalendarEntry_ptr evt) override {
-        FastLED.showColor(CRGB(0, 0, 0));
+        this->write(this->offColor);
     }
 };
 
