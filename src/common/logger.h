@@ -103,7 +103,7 @@ protected:
 #ifdef ARDUINO
         printer->println();
 #else
-        std::cout << "\r\n";
+        std::cout << std::endl << std::flush;
 #endif
 
     }
