@@ -32,8 +32,11 @@ public:
 
     String toString() const {
         String str;
+
+        char unixTimeStr[11]; // Big enough until year 2286
+        sprintf(unixTimeStr, "%lld", this->unixtime);
         
-        str += this->unixtime;
+        str += unixTimeStr;
         str += this->startingRatherThanEnding ? " - STARTING: " : " - ENDING:  ";
         str += event->summary();
         
