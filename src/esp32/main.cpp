@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "ota.h"
+#include "printers/printerCollection.h"
 #include "printers/telnetServer.h"
 
 
@@ -33,7 +34,10 @@ void setup() {
 
 #if TELNET_PORT != 0
     TelnetServer<TELNET_PORT>::getInstance()->begin();
-    Logger::getInstance().setWriteStrategy(TelnetServer<23>::getInstance());
+    PrinterCollection* printerCollection = new PrinterCollection();
+    printerCollection->addPrinter(&Serial);
+    printerCollection->addPrinter(TelnetServer<23>::getInstance());
+    Logger::getInstance().setWriteStrategy(printerCollection);
 
 #if TELNET_WAIT_FOR_CLIENT_SECONDS > 0
     pinMode(LED_BUILTIN, OUTPUT);
