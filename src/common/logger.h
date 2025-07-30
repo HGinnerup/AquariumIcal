@@ -80,6 +80,9 @@ protected:
 public:
     template<typename... Args>
     void log(LogLevel level, const Args&... messageItems) {
+        if (level < this->logLevel)
+            return;
+
         log_helper(level, "[", logLevelToString(level), "] ", messageItems...);
     }
 
