@@ -154,6 +154,7 @@ public:
             Logger::getInstance().debug("Processing item: \n\t", item.toString());
 
             if (item.startingRatherThanEnding) { // Always keep at least 1 upcoming event in the log
+                Logger::getInstance().debug("Consuming next event");
                 this->consumeNextEventFromIcalStream();
             }
 

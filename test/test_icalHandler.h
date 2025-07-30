@@ -222,3 +222,91 @@ TEST(ICalHandler, Intersecting_end_and_start_multiple_recurring) {
         EXPECT_EQ(days + 1, ev3Handler->timesEndCalled);
     }
 }
+
+
+
+TEST(ICalHandler, Recurring_2nd_event_in_the_day) {
+    CalendarTester cal("test");
+    cal.addEvent("Ev1",  7,  8); // WS2815
+    cal.addEvent("Ev2",  7, 21); // CO2
+    cal.addEvent("Ev3",  8, 22); // Bright light
+    cal.addEvent("Ev1", 18, 23); // WS2815 (Evening)
+    IcalIterator_ptr calIterator = cal.makeIterator(0);
+
+    IcalHandler* icalHandler = new IcalHandler(calIterator);
+    EventTestHandler* ev1Handler = new EventTestHandler("Ev1");
+    EventTestHandler* ev2Handler = new EventTestHandler("Ev2");
+    EventTestHandler* ev3Handler = new EventTestHandler("Ev3");
+    icalHandler->registerEventHandler(ev1Handler);
+    icalHandler->registerEventHandler(ev2Handler);
+    icalHandler->registerEventHandler(ev3Handler);
+
+    const time_t day_seconds = 60*60*24;
+
+    
+    for(int days=0; days<1; days++) {
+        // Nothing yet
+        icalHandler->processEventsUntil(days * day_seconds + 6);
+        EXPECT_EQ(days*2    , ev1Handler->timesStartCalled);
+        EXPECT_EQ(days*2    , ev1Handler->timesEndCalled);
+        EXPECT_EQ(days      , ev2Handler->timesEndCalled);
+        EXPECT_EQ(days      , ev2Handler->timesStartCalled);
+        EXPECT_EQ(days      , ev3Handler->timesStartCalled);
+        EXPECT_EQ(days      , ev3Handler->timesEndCalled);
+
+        // Ev1+Ev2 starting
+        icalHandler->processEventsUntil(days * day_seconds + 7);
+        EXPECT_EQ(days * 2 + 1, ev1Handler->timesStartCalled);
+        EXPECT_EQ(days * 2    , ev1Handler->timesEndCalled);
+        EXPECT_EQ(days     + 1, ev2Handler->timesStartCalled);
+        EXPECT_EQ(days        , ev2Handler->timesEndCalled);
+        EXPECT_EQ(days        , ev3Handler->timesStartCalled);
+        EXPECT_EQ(days        , ev3Handler->timesEndCalled);
+
+        // Ev1 ending, Ev3 starting
+        icalHandler->processEventsUntil(days * day_seconds + 8);
+        EXPECT_EQ(days * 2 + 1, ev1Handler->timesStartCalled);
+        EXPECT_EQ(days * 2 + 1, ev1Handler->timesEndCalled);
+        EXPECT_EQ(days     + 1, ev2Handler->timesStartCalled);
+        EXPECT_EQ(days        , ev2Handler->timesEndCalled);
+        EXPECT_EQ(days     + 1, ev3Handler->timesStartCalled);
+        EXPECT_EQ(days        , ev3Handler->timesEndCalled);
+
+        // Ev1 staring (again today)
+        icalHandler->processEventsUntil(days * day_seconds + 18);
+        EXPECT_EQ(days * 2 + 2, ev1Handler->timesStartCalled);
+        EXPECT_EQ(days * 2 + 1, ev1Handler->timesEndCalled);
+        EXPECT_EQ(days     + 1, ev2Handler->timesStartCalled);
+        EXPECT_EQ(days        , ev2Handler->timesEndCalled);
+        EXPECT_EQ(days     + 1, ev3Handler->timesStartCalled);
+        EXPECT_EQ(days        , ev3Handler->timesEndCalled);
+
+        // Ev2 ending
+        icalHandler->processEventsUntil(days * day_seconds + 21);
+        EXPECT_EQ(days * 2 + 2, ev1Handler->timesStartCalled);
+        EXPECT_EQ(days * 2 + 1, ev1Handler->timesEndCalled);
+        EXPECT_EQ(days     + 1, ev2Handler->timesStartCalled);
+        EXPECT_EQ(days     + 1, ev2Handler->timesEndCalled);
+        EXPECT_EQ(days     + 1, ev3Handler->timesStartCalled);
+        EXPECT_EQ(days        , ev3Handler->timesEndCalled);
+
+        // Ev3 ending
+        icalHandler->processEventsUntil(days * day_seconds + 22);
+        EXPECT_EQ(days * 2 + 2, ev1Handler->timesStartCalled);
+        EXPECT_EQ(days * 2 + 1, ev1Handler->timesEndCalled);
+        EXPECT_EQ(days     + 1, ev2Handler->timesStartCalled);
+        EXPECT_EQ(days     + 1, ev2Handler->timesEndCalled);
+        EXPECT_EQ(days     + 1, ev3Handler->timesStartCalled);
+        EXPECT_EQ(days     + 1, ev3Handler->timesEndCalled);
+        
+        // Ev1 ending
+        icalHandler->processEventsUntil(days * day_seconds + 23);
+        EXPECT_EQ(days * 2 + 2, ev1Handler->timesStartCalled);
+        EXPECT_EQ(days * 2 + 2, ev1Handler->timesEndCalled);
+        EXPECT_EQ(days     + 1, ev2Handler->timesStartCalled);
+        EXPECT_EQ(days     + 1, ev2Handler->timesEndCalled);
+        EXPECT_EQ(days     + 1, ev3Handler->timesStartCalled);
+        EXPECT_EQ(days     + 1, ev3Handler->timesEndCalled);
+    }
+}
+

@@ -2,6 +2,7 @@
 
 #include "test_lambdaHandler.h"
 #include "test_icalHandler.h"
+#include "actual_calendar/test_icalHandler_actual_calendar.h"
 
 #include "fakes/calendar/calendarDatetime.h"
 
