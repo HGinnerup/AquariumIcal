@@ -7,6 +7,7 @@
 #include "logger.h"
 #include "icalEventHandlers/icalEventHandler.h"
 #include "icalIterator.h"
+#include "timeUtil.h"
 
 time_t uicalDateTimeToUnixtime(uICAL::DateTime icalTime) {
     return (time_t)(icalTime - uICAL::DateTime(0)).totalSeconds();
@@ -32,14 +33,10 @@ public:
 
     String toString() const {
         String str;
-
-        char unixTimeStr[11]; // Big enough until year 2286
-        sprintf(unixTimeStr, "%lld", this->unixtime);
-        
-        str += unixTimeStr;
+        str += toIsoTimestampLocal(this->unixtime);
         str += this->startingRatherThanEnding ? " - STARTING: " : " - ENDING:  ";
         str += event->summary();
-        
+
         return str;
     }
 
@@ -97,7 +94,7 @@ private:
 
         String eventName = event->summary();
         IcalEventHandler* eventHandler;
-        
+
         try {
             eventHandler = this->eventHandlers.at(eventName);
         }

@@ -112,8 +112,8 @@ void loop() {
     time_t next_event_time = icalHandler->getTimeOfNextEvent();
     time_t wait_time = next_event_time - current_time;
 
-    Logger::getInstance().info("Current time: ", current_time);
-    Logger::getInstance().info("Time for next event: ", next_event_time);
+    Logger::getInstance().info("Current time: ", toIsoTimestampLocal(current_time));
+    Logger::getInstance().info("Time for next event: ", toIsoTimestampLocal(next_event_time));
     Logger::getInstance().info("Waiting for ", wait_time, " seconds");
 
     while (getUnixTime() < next_event_time - 2000) {
@@ -124,8 +124,8 @@ void loop() {
         wait_time = next_event_time - current_time;
 
         icalHandler->printEventQueue();
-        Logger::getInstance().info("\tCurrent time: ", current_time,
-            "\r\n\tTime for next event: ", next_event_time,
+        Logger::getInstance().info("\tCurrent time: ", toIsoTimestampLocal(current_time),
+            "\r\n\tTime for next event: ", toIsoTimestampLocal(next_event_time),
             "\r\n\tWaiting for ", wait_time, " seconds\r\n");
     }
     delay(next_event_time - getUnixTime());

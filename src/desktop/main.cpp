@@ -82,8 +82,8 @@ void loop() {
     time_t next_event_time = icalHandler->getTimeOfNextEvent();
     time_t wait_time = next_event_time - current_time;
 
-    Logger::getInstance().info("Current time: ", current_time);
-    Logger::getInstance().info("Time for next event: ", next_event_time);
+    Logger::getInstance().info("Current time: ", toIsoTimestampLocal(current_time));
+    Logger::getInstance().info("Time for next event: ", toIsoTimestampLocal(next_event_time));
     Logger::getInstance().info("Waiting for ", wait_time, " seconds");
 
     delay(wait_time * 1000);
