@@ -6,3 +6,7 @@
 
 # Protect credentials
 src/common/config.h
+components/common/config.h
+
+build
+build-desktop

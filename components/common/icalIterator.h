@@ -18,7 +18,7 @@ protected:
 
 public:
     IcalIterator(String ical_str, time_t startTime, time_t endTime = std::numeric_limits<time_t>::max()) {
-        try {
+        // try {
             #ifdef ARDUINO
                 uICAL::istream_String istm(ical_str);
             #else
@@ -26,10 +26,10 @@ public:
                 uICAL::istream_stl istm(ical_str_stream);
             #endif
             this->calendar = uICAL::Calendar::load(istm);
-        }
-        catch (uICAL::Error ex) {
-            Logger::getInstance().error(ex.message, ": ! Failed loading calendar");
-        }
+        // }
+        // catch (uICAL::Error ex) {
+        //     Logger::getInstance().error(ex.message, ": ! Failed loading calendar");
+        // }
 
         uICAL::DateTime calBegin(startTime);
         uICAL::DateTime calEnd(endTime);

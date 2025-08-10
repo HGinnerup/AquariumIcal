@@ -6,11 +6,14 @@
 #include <string>
 using String = std::string;
 
-#include <thread>
-#include <chrono>
+// #include <thread>
+// #include <chrono>
 #endif
 #include <memory.h>
 
+#ifdef __cplusplus
+// extern "C" {
+// #endif
 
 #define DEF_PTR_TYPE(T) \
     /* class T; */ \
@@ -24,6 +27,11 @@ inline std::shared_ptr<T> new_shared_ptr(Args... args) { return std::shared_ptr<
 
 #ifndef ARDUINO
 void delay(time_t ms) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+    // TODO: This has to be fixed to actually do something
+    // std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
+#endif
+
+// #ifdef __cplusplus
+// }
 #endif

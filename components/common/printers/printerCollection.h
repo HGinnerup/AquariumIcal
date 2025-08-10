@@ -1,17 +1,17 @@
 #pragma once
 
 #include <vector>
-#include <Print.h>
+#include "printer.h"
 
 
-class PrinterCollection : public Print {
+class PrinterCollection : public Printer {
 protected:
-    std::vector<Print*> printers;
+    std::vector<Printer*> printers;
 
 public:
     PrinterCollection() {}
 
-    void addPrinter(Print* printer) {
+    void addPrinter(Printer* printer) {
         this->printers.emplace_back(printer);
     }
 

@@ -93,15 +93,13 @@ private:
         bool startingRatherThanEnding = logItem.startingRatherThanEnding;
 
         String eventName = event->summary();
-        IcalEventHandler* eventHandler;
 
-        try {
-            eventHandler = this->eventHandlers.at(eventName);
-        }
-        catch (const std::out_of_range& ex) {
+        if(this->eventHandlers.find(eventName) == this->eventHandlers.end()) {
             this->logger->warn("Unhandled event: \"" + eventName + "\"");
             return;
         }
+        
+        IcalEventHandler* eventHandler = this->eventHandlers.at(eventName);
 
         if (startingRatherThanEnding) {
             this->logger->info("Starting event: \"" + eventName + "\"");
@@ -115,7 +113,7 @@ private:
 
 
 public:
-    IcalHandler(IcalIterator_ptr icalIterator, Logger* logger = &Logger::getInstance()) : icalIterator(icalIterator), logger(logger) {
+    IcalHandler(IcalIterator_ptr icalIterator, Logger* logger = &Logger::getInstance()) : logger(logger), icalIterator(icalIterator) {
         this->consumeNextEventFromIcalStream();
     }
 

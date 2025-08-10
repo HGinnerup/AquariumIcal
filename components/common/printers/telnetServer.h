@@ -1,11 +1,12 @@
 #pragma once
 
 #include <AsyncTCP.h>
-#include <Print.h>
+
+#include "printer.h"
 
 
 template <uint16_t port = 23> // Template to have static methods, per port, to use for TCP callbacks
-class TelnetServer : public Print {
+class TelnetServer : public Printer {
     AsyncServer* server;
     std::vector<AsyncClient*> clients;
 
